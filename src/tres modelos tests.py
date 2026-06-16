@@ -160,7 +160,7 @@ for chave, modelo in dicionario_modelos.items():
     # Guardar os pesos e arquitetura do modelo (.h5)
     caminho_modelo = os.path.join(PASTA_SAIDA, f"{modelo.name}.h5")
     modelo.save(caminho_modelo)
-    print(f"💾 Modelo salvo com sucesso em: {caminho_modelo}")
+    print(f"Modelo salvo com sucesso em: {caminho_modelo}")
     
     # Gerar gráficos de evolução (Acurácia e Loss ao longo das épocas)
     salvar_visualizacoes(history, modelo.name)
@@ -225,7 +225,7 @@ for chave, modelo in dicionario_modelos.items():
     plt.tight_layout()
     plt.savefig(caminho_metricas_barra, dpi=150)
     plt.close()
-    print(f"🖼️ Gráfico de barras de métricas salvo em: {caminho_metricas_barra}")
+    print(f" Gráfico de barras de métricas salvo em: {caminho_metricas_barra}")
 
   
     resultados_resumo[modelo.name] = {
@@ -245,6 +245,6 @@ with open(caminho_json, 'w') as f:
     json.dump(resultados_resumo, f, indent=4, default=default_serializer)
 
 print("\n" + "="*60)
-print(" 🏁 PROCESSO DE TREINO E AVALIAÇÃO CONCLUÍDO COM SUCESSO!")
+print("PROCESSO DE TREINO E AVALIAÇÃO CONCLUÍDO COM SUCESSO!")
 print(f" Verifique a pasta '{PASTA_SAIDA}' para auditar os resultados.")
 print("="*60)

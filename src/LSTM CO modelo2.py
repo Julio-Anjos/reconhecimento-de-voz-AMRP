@@ -207,4 +207,4 @@ model.save("modelo_cadencia_lstm_federado2.h5")
 with open("labels_cadencia_lstm.json", "w") as f:
     json.dump(label_map, f)
 
-print("\n🏁 Modelo Atualizado com Sucesso!")
+print("\n Modelo Atualizado com Sucesso!")

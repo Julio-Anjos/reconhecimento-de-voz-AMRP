@@ -48,7 +48,7 @@ def calcular_entropia(probs):
 # CARREGAMENTO DOS MODELOS DE CADÊNCIA
 # =====================================================
 if not os.path.exists(LABELS_PATH):
-    print(f"❌ ERRO: O arquivo '{LABELS_PATH}' precisa estar nesta pasta!")
+    print(f"ERRO: O arquivo '{LABELS_PATH}' precisa estar nesta pasta!")
     sys.exit()
 
 with open(LABELS_PATH) as f:
@@ -65,10 +65,10 @@ for nome in nomes_modelos:
         modelos_carregados[nome] = load_model(caminho)
         print(f" -> {nome} carregado com sucesso!")
     else:
-        print(f"⚠️ AVISO: {caminho} não encontrado.")
+        print(f"AVISO: {caminho} não encontrado.")
 
 if not modelos_carregados:
-    print("❌ ERRO: Nenhum modelo novo de cadência foi localizado.")
+    print(" ERRO: Nenhum modelo novo de cadência foi localizado.")
     sys.exit()
 
 # Métricas para o relatório final
@@ -79,11 +79,11 @@ estatisticas = {
 total_testes_global = len(CLASSES) * REPETICOES_TOTAIS
 
 print("\n" + "="*60)
-print(" 🎙️ SESSÃO DE PREVISÃO TRIPLA: FOCO EM RITMO E CADÊNCIA")
+print("  SESSÃO DE PREVISÃO TRIPLA: FOCO EM RITMO E CADÊNCIA")
 print("="*60)
 
 for rodada in range(REPETICOES_TOTAIS):
-    print(f"\n🔄 --- INICIANDO CICLO {rodada + 1}/{REPETICOES_TOTAIS} ---")
+    print(f"\n --- INICIANDO CICLO {rodada + 1}/{REPETICOES_TOTAIS} ---")
     
     for classe_real in CLASSES:
         print(f"\nPALAVRA ALVO AGORA: [ {classe_real.upper()} ]")
@@ -118,18 +118,18 @@ for rodada in range(REPETICOES_TOTAIS):
             estatisticas[nome_modelo]["entropias"].append(ent)
             
             if classe_pred.lower().strip() == classe_real.lower().strip():
-                status = "✅ ACERTOU!"
+                status = "ACERTOU!"
                 estatisticas[nome_modelo]["acertos"] += 1
                 estatisticas[nome_modelo]["confiancas_corretas"].append(conf)
             else:
-                status = f"❌ ERROU (Identificou: [{classe_pred.upper()}])"
+                status = f"ERROU (Identificou: [{classe_pred.upper()}])"
                 
             print(f"  ▪️ {nome_modelo:<32}: {status} | Certeza: {conf*100:2.1f}% | Entropia: {ent:.3f}")
         print("-" * 60)
 
 
 print("\n" + "="*75)
-print(" 🏁 BALANÇO DE PERFORMANCE DOS MODELOS DE CADÊNCIA COM RUÍDO")
+print(" BALANÇO DE PERFORMANCE DOS MODELOS DE CADÊNCIA COM RUÍDO")
 print("="*75)
 
 for nome_modelo, dados in estatisticas.items():
@@ -137,7 +137,7 @@ for nome_modelo, dados in estatisticas.items():
     conf_media = np.mean(dados["confiancas_corretas"]) * 100 if dados["confiancas_corretas"] else 0.0
     estabilidade = np.std(dados["entropias"]) if dados["entropias"] else float('inf')
     
-    print(f"📊 {nome_modelo.upper()}:")
+    print(f"{nome_modelo.upper()}:")
     print(f"   -> Taxa de Orientação Correta : {dados['acertos']}/{total_testes_global} ({acuracia:.1f}%)")
     print(f"   -> Confiança Média nos Acertos: {conf_media:.1f}%")
     print(f"   -> Instabilidade com Ruído    : {estabilidade:.4f} (Valores menores = Modelo mais firme)")

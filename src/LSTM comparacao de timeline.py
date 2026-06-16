@@ -53,9 +53,7 @@ def extrair_cadencia(audio):
     matrix_cadence = zoom(X_rp[0], scale_factor, order=1)
     return np.expand_dims(matrix_cadence, axis=-1)
 
-# ==========================================
-# 3. EXTRAÇÃO DO CONJUNTO DE TESTE UNIFICADO
-# ==========================================
+
 X_spec_test, X_cad_test, y_test = [], [], []
 
 print("\nCarregando dados de teste e gerando representações...")
@@ -100,9 +98,7 @@ acc_antigo = accuracy_score(y_test, np.argmax(preds_antigo, axis=1))
 acc_cnn_puro = accuracy_score(y_test, np.argmax(preds_cnn_puro, axis=1))
 acc_hibrido = accuracy_score(y_test, np.argmax(preds_hibrido, axis=1))
 
-# ==========================================
-# 5. GERAÇÃO DAS VISUALIZAÇÕES COMPARATIVAS
-# ==========================================
+
 
 # Visualização 1: Gráfico de Barras de Acurácia Global
 plt.figure(figsize=(8, 5))

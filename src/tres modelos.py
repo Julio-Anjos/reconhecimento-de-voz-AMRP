@@ -183,7 +183,7 @@ for chave, modelo in dicionario_modelos.items():
     # Guardar os pesos e arquitetura do novo modelo (.h5)
     caminho_modelo = os.path.join(PASTA_SAIDA, f"{modelo.name}.h5")
     modelo.save(caminho_modelo)
-    print(f"💾 Modelo de Cadência salvo com sucesso em: {caminho_modelo}")
+    print(f"Modelo de Cadência salvo com sucesso em: {caminho_modelo}")
     
     # Gerar gráficos específicos para esta versão temporal
     salvar_visualizacoes(history, modelo.name)
@@ -194,6 +194,6 @@ with open(caminho_json, 'w') as f:
     json.dump(resultados_resumo, f, indent=4)
 
 print("\n" + "="*60)
-print(" 🏁 PROCESSO DE TREINO CONCLUÍDO COM SUCESSO!")
+print("  PROCESSO DE TREINO CONCLUÍDO COM SUCESSO!")
 print(f" Aceda à pasta '{PASTA_SAIDA}' para auditar as curvas de treino.")
 print("="*60)

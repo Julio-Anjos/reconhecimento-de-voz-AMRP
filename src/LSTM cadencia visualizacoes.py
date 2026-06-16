@@ -109,9 +109,9 @@ for classe, matriz_dados in dados_por_classe.items():
     plt.savefig(caminho_salvamento, bbox_inches='tight', dpi=150)
     plt.close()
 
-    print(f"\n📈 Métricas de Afastamento da Média para a Classe [{classe.upper()}]:")
+    print(f"\n Métricas de Afastamento da Média para a Classe [{classe.upper()}]:")
     print(f"   -> Variância Média Global : {np.mean(variancias_seg):.4f}")
     print(f"   -> Desvio Padrão Máximo   : {np.max(desvios_seg):.4f} (Maior oscilação de ritmo detectada no segmento {np.argmax(desvios_seg)})")
     print(f"   -> Desvio Padrão Mínimo   : {np.min(desvios_seg):.4f} (Momento de maior consistência temporal no segmento {np.argmin(desvios_seg)})")
 
-print(f"\n🏁 Processo concluído! Os gráficos focados em cadência e variância foram salvos em: '{os.path.abspath(PASTA_SAIDA)}'")
+print(f"\nProcesso concluído! Os gráficos focados em cadência e variância foram salvos em: '{os.path.abspath(PASTA_SAIDA)}'")

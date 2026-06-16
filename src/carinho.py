@@ -265,7 +265,7 @@ def main():
     trail, finished, crashed = interactive_simulation(r, b, dt, x0, y0, theta0)
 
     if finished:
-        print("\n🏁 Parabéns! Você cruzou a linha de chegada!")
+        print("\nParabéns! Você cruzou a linha de chegada!")
     elif crashed:
         print("\n💥 Você colidiu com um carro estacionado!")
     else:
