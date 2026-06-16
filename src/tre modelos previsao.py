@@ -8,10 +8,8 @@ from tensorflow.keras.models import load_model
 # Importando o seu pipeline padrão do arquivo utils
 from utils import preprocess_audio, stft_manual, mel_filterbank
 
-# =====================================================
-# CONFIGURAÇÕES DA VALIDAÇÃO (PASTA NOVA)
-# =====================================================
-PASTA_MODELOS = "comparacao_modelos_ruido_cadencia"  # 📌 Apontando para os novos modelos
+
+PASTA_MODELOS = "comparacao_modelos_ruido_cadencia"  
 LABELS_PATH = "labels_mic_simulacao1.json"
 
 CLASSES = ["pare", "siga", "direita", "esquerda", "voltar"]
@@ -80,9 +78,6 @@ estatisticas = {
 }
 total_testes_global = len(CLASSES) * REPETICOES_TOTAIS
 
-# =====================================================
-# EXECUÇÃO DO TESTE (PREVISÃO TRIPLA SIMULTÂNEA)
-# =====================================================
 print("\n" + "="*60)
 print(" 🎙️ SESSÃO DE PREVISÃO TRIPLA: FOCO EM RITMO E CADÊNCIA")
 print("="*60)
@@ -91,12 +86,12 @@ for rodada in range(REPETICOES_TOTAIS):
     print(f"\n🔄 --- INICIANDO CICLO {rodada + 1}/{REPETICOES_TOTAIS} ---")
     
     for classe_real in CLASSES:
-        print(f"\n📢 PALAVRA ALVO AGORA: [ {classe_real.upper()} ]")
+        print(f"\nPALAVRA ALVO AGORA: [ {classe_real.upper()} ]")
         input("Pressione [ ENTER ] e fale a palavra de forma natural...")
         
-        print("🎤 Gravando cadência...")
+        print("Gravando cadência...")
         audio = gravar_audio()
-        print("🛑 Áudio capturado. Fazendo previsão tripla...")
+        print("Áudio capturado. Fazendo previsão tripla...")
         
         # Base de características Mel (128, 94)
         mel_base = audio_para_mel(audio)
@@ -104,7 +99,7 @@ for rodada in range(REPETICOES_TOTAIS):
         print(f"\nResultados para o comando real '{classe_real}':")
         
         for nome_modelo, modelo in modelos_carregados.items():
-            # 📌 ADAPTAÇÃO CRUCIAL AQUI:
+
             if "Puro_LSTM" in nome_modelo:
                 # O Puro LSTM redesenha a matriz sem canais de imagem: shape (1, 128, 94)
                 mel_input = np.expand_dims(mel_base, axis=0)
@@ -132,9 +127,7 @@ for rodada in range(REPETICOES_TOTAIS):
             print(f"  ▪️ {nome_modelo:<32}: {status} | Certeza: {conf*100:2.1f}% | Entropia: {ent:.3f}")
         print("-" * 60)
 
-# =====================================================
-# ACURÁCIA, ESTABILIDADE E CONFIANÇA NO RUÍDO
-# =====================================================
+
 print("\n" + "="*75)
 print(" 🏁 BALANÇO DE PERFORMANCE DOS MODELOS DE CADÊNCIA COM RUÍDO")
 print("="*75)

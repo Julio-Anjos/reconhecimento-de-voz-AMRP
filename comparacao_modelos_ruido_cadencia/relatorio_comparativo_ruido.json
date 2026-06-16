@@ -1,0 +1,149 @@
+{
+    "Modelo_Ruido_Equilibrado_50_50": {
+        "val_loss_final": 0.5980173349380493,
+        "val_accuracy_global": 0.9100000262260437,
+        "detalhes_por_classe": {
+            "pare": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 19.0
+            },
+            "siga": {
+                "precision": 1.0,
+                "recall": 0.782608695652174,
+                "f1-score": 0.8780487804878049,
+                "support": 23.0
+            },
+            "direita": {
+                "precision": 0.7575757575757576,
+                "recall": 1.0,
+                "f1-score": 0.8620689655172413,
+                "support": 25.0
+            },
+            "esquerda": {
+                "precision": 0.9375,
+                "recall": 0.9375,
+                "f1-score": 0.9375,
+                "support": 16.0
+            },
+            "voltar": {
+                "precision": 1.0,
+                "recall": 0.8235294117647058,
+                "f1-score": 0.9032258064516129,
+                "support": 17.0
+            },
+            "accuracy": 0.91,
+            "macro avg": {
+                "precision": 0.9390151515151516,
+                "recall": 0.9087276214833759,
+                "f1-score": 0.9161687104913318,
+                "support": 100.0
+            },
+            "weighted avg": {
+                "precision": 0.9293939393939393,
+                "recall": 0.91,
+                "f1-score": 0.9110168479882798,
+                "support": 100.0
+            }
+        }
+    },
+    "Modelo_Ruido_Foco_LSTM_70_30": {
+        "val_loss_final": 1.4388971328735352,
+        "val_accuracy_global": 0.27000001072883606,
+        "detalhes_por_classe": {
+            "pare": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1-score": 0.0,
+                "support": 19.0
+            },
+            "siga": {
+                "precision": 0.6666666666666666,
+                "recall": 0.08695652173913043,
+                "f1-score": 0.15384615384615385,
+                "support": 23.0
+            },
+            "direita": {
+                "precision": 0.26881720430107525,
+                "recall": 1.0,
+                "f1-score": 0.423728813559322,
+                "support": 25.0
+            },
+            "esquerda": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1-score": 0.0,
+                "support": 16.0
+            },
+            "voltar": {
+                "precision": 0.0,
+                "recall": 0.0,
+                "f1-score": 0.0,
+                "support": 17.0
+            },
+            "accuracy": 0.27,
+            "macro avg": {
+                "precision": 0.18709677419354837,
+                "recall": 0.21739130434782608,
+                "f1-score": 0.11551499348109517,
+                "support": 100.0
+            },
+            "weighted avg": {
+                "precision": 0.22053763440860213,
+                "recall": 0.27,
+                "f1-score": 0.14131681877444588,
+                "support": 100.0
+            }
+        }
+    },
+    "Modelo_Ruido_Puro_LSTM": {
+        "val_loss_final": 0.0003812612558249384,
+        "val_accuracy_global": 1.0,
+        "detalhes_por_classe": {
+            "pare": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 19.0
+            },
+            "siga": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 23.0
+            },
+            "direita": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 25.0
+            },
+            "esquerda": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 16.0
+            },
+            "voltar": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 17.0
+            },
+            "accuracy": 1.0,
+            "macro avg": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 100.0
+            },
+            "weighted avg": {
+                "precision": 1.0,
+                "recall": 1.0,
+                "f1-score": 1.0,
+                "support": 100.0
+            }
+        }
+    }
+}

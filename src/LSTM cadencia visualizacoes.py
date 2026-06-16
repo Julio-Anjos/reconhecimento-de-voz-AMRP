@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats 
 
-# Configurações de Pastas
+
 DATASET_ORIGINAL = "spectrograms_original"
 PASTA_SAIDA = "visualizacoes_cadencia"
 os.makedirs(PASTA_SAIDA, exist_ok=True)
@@ -11,7 +11,6 @@ os.makedirs(PASTA_SAIDA, exist_ok=True)
 if not os.path.exists(DATASET_ORIGINAL):
     raise FileNotFoundError(f"A pasta '{DATASET_ORIGINAL}' não foi encontrada.")
 
-# 1. Carregamento dos Dados
 classes = sorted(os.listdir(DATASET_ORIGINAL))
 dados_por_classe = {}
 
@@ -30,19 +29,15 @@ for classe in classes:
 
 print(f"Processando as assinaturas funcionais de cadência para: {list(dados_por_classe.keys())}")
 
-# =========================================================================
-# VISUALIZAÇÃO: ENVELOPES DE CADÊNCIA, VARIÂNCIA E DESVIO PADRÃO
-# =========================================================================
+
 num_segmentos = 90
 
 for classe, matriz_dados in dados_por_classe.items():
-    # 🎙️ EXTRAÇÃO DA CADÊNCIA REAIS: Calculamos a raiz da média dos quadrados (RMS) 
-    # ao longo do eixo das frequências para obter o envelope de amplitude temporal legítimo.
-    # Formato resultante: (Amostras, 94)
+
     cadencia_temporal = np.sqrt(np.mean(matriz_dados ** 2, axis=1))
     colunas_tempo = cadencia_temporal.shape[1]
     
-    # Define os limites de corte para os 90 intervalos
+    
     limites = np.linspace(0, colunas_tempo, num_segmentos + 1, dtype=int)
     
     minimos_seg = []
@@ -50,8 +45,8 @@ for classe, matriz_dados in dados_por_classe.items():
     medias_seg = []
     medianas_seg = []
     modas_seg = []
-    desvios_seg = []    # 📉 Desvio Padrão por segmento
-    variancias_seg = [] # 📊 Variância por segmento
+    desvios_seg = []    
+    variancias_seg = [] 
     eixo_x_valido = []
     
     for i in range(num_segmentos):
@@ -79,19 +74,17 @@ for classe, matriz_dados in dados_por_classe.items():
         
         eixo_x_valido.append(i)
         
-    # Converte para arrays numpy para facilitar operações matemáticas vetoriais
+   
     medias_seg = np.array(medias_seg)
     desvios_seg = np.array(desvios_seg)
-    
-    # --- PLOTAGEM DO GRÁFICO DE CADÊNCIA AVANÇADO ---
+  
     plt.figure(figsize=(14, 7))
     
-    # Envelope 1: Dispersão Absoluta Total (Mínimo ao Máximo) - Cinza Claro
+   
     plt.fill_between(eixo_x_valido, minimos_seg, maximos_seg, color='gray', alpha=0.1, 
                      label='Dispersão Absoluta (Mín/Máx)')
     
-    # Envelope 2: ZONA DE DESVIO PADRÃO (O quanto os áudios se distanciam da Média)
-    # Mostra a região de 1 Desvio Padrão para cima e para baixo da Função Média
+
     plt.fill_between(eixo_x_valido, 
                      medias_seg - desvios_seg, 
                      medias_seg + desvios_seg, 
@@ -115,8 +108,7 @@ for classe, matriz_dados in dados_por_classe.items():
     caminho_salvamento = os.path.join(PASTA_SAIDA, f"cadencia_dispersao_{classe}.png")
     plt.savefig(caminho_salvamento, bbox_inches='tight', dpi=150)
     plt.close()
-    
-    # --- RELATÓRIO IMPRESSO NO TERMINAL ---
+
     print(f"\n📈 Métricas de Afastamento da Média para a Classe [{classe.upper()}]:")
     print(f"   -> Variância Média Global : {np.mean(variancias_seg):.4f}")
     print(f"   -> Desvio Padrão Máximo   : {np.max(desvios_seg):.4f} (Maior oscilação de ritmo detectada no segmento {np.argmax(desvios_seg)})")

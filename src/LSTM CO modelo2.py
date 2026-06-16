@@ -12,25 +12,21 @@ from tensorflow.keras.layers import (
 from tensorflow.keras.losses import CategoricalCrossentropy
 from scipy.ndimage import zoom
 
-# ==========================================
-# 1. CONFIGURAÇÕES E CAMINHOS
-# ==========================================
+
 DATASET_FINAL = "dataset_final"
 
 SAMPLE_RATE = 16000
-DURATION = 1.0  # Reduzido para 1 segundo focado apenas na fala útil
+DURATION = 1.0  
 TARGET_SIZE = 64 
 
 if not os.path.exists(DATASET_FINAL):
-    raise FileNotFoundError(f"❌ ERRO: A pasta '{DATASET_FINAL}' não foi encontrada.")
+    raise FileNotFoundError(f"ERRO: A pasta '{DATASET_FINAL}' não foi encontrada.")
 
 labels = sorted(os.listdir(DATASET_FINAL))
 label_map = {label: i for i, label in enumerate(labels)}
 num_classes = len(labels)
 
-# =========================================================================
-# FUNÇÕES DE CORREÇÃO ACÚSTICA: CENTRALIZAÇÃO E EXTRAÇÃO DE CADÊNCIA (DELTAS)
-# =========================================================================
+
 
 def isolar_e_centralizar_fala(audio, top_db=30):
     """
@@ -46,14 +42,14 @@ def isolar_e_centralizar_fala(audio, top_db=30):
 
     target_samples = int(SAMPLE_RATE * DURATION)
     
-    # Se a palavra for curta, põe silêncio IGUAL nas duas pontas (Centralização Absoluta)
+  
     if len(audio_fala) < target_samples:
         total_pad = target_samples - len(audio_fala)
         pad_esquerdo = total_pad // 2
         pad_direito = total_pad - pad_esquerdo
         audio_final = np.pad(audio_fala, (pad_esquerdo, pad_direito), 'constant')
     else:
-        # Se ficou maior, corta centralizado
+       
         start_crop = (len(audio_fala) - target_samples) // 2
         audio_final = audio_fala[start_crop:start_crop + target_samples]
         
@@ -86,10 +82,8 @@ def extrair_recursos_cadencia_3canais(file_path, aplicar_augmentation=False):
     """
     audio, sr = librosa.load(file_path, sr=SAMPLE_RATE)
     
-    # Centraliza o comando para limpar os cantos vazios do gráfico
     audio = isolar_e_centralizar_fala(audio)
     
-    # Normalização por Amostra (Instance Normalization para volumes diferentes)
     pico = np.max(np.abs(audio))
     if pico > 1e-6: audio = audio / pico
         
@@ -98,30 +92,26 @@ def extrair_recursos_cadencia_3canais(file_path, aplicar_augmentation=False):
         pico = np.max(np.abs(audio))
         if pico > 1e-6: audio = audio / pico
 
-    # Extração do Espectrograma Mel Base
+
     mel_spec = librosa.feature.melspectrogram(y=audio, sr=SAMPLE_RATE, n_mels=TARGET_SIZE, n_fft=512, hop_length=256)
     mel_db = librosa.power_to_db(mel_spec, ref=np.max)
-    
-    # 🌟 CALCULO DAS DERIVADAS TEMPORAIS (CADÊNCIA PURA)
-    # Delta captura o ritmo de transição (velocidade de fala)
+
     delta_velocidade = librosa.feature.delta(mel_db, order=1)
     # Delta-Delta captura a aceleração e explosão de sílabas
     delta2_aceleracao = librosa.feature.delta(mel_db, order=2)
     
-    # Redimensiona os eixos para caber no shape quadrado 64x64 da CNN
+    
     scale_y = TARGET_SIZE / mel_db.shape[1]
     
     canal_1 = zoom(mel_db, (1, scale_y), order=1)
     canal_2 = zoom(delta_velocidade, (1, scale_y), order=1)
     canal_3 = zoom(delta2_aceleracao, (1, scale_y), order=1)
     
-    # Junta os 3 mapas em uma imagem de 3 canais (Shape: 64, 64, 3)
+
     espectrograma_3d = np.stack([canal_1, canal_2, canal_3], axis=-1)
     return espectrograma_3d
 
-# ==========================================
-# 2. CARREGAMENTO E PROCESSAMENTO
-# ==========================================
+
 X_dados, y_dados = [], []
 
 print("Extraindo recursos lineares de Cadência (3 Canais)...")
@@ -138,7 +128,7 @@ for label in labels:
                 X_dados.append(matrix)
                 y_dados.append(label_map[label])
             except Exception as e:
-                print(f"⚠️ Falha no arquivo {file}: {e}")
+                print(f"Falha no arquivo {file}: {e}")
 
 X_dados = np.array(X_dados)
 y_dados = np.array(y_dados)
@@ -150,14 +140,11 @@ X_train, X_val, y_train, y_val = train_test_split(
 y_train = to_categorical(y_train, num_classes=num_classes)
 y_val = to_categorical(y_val, num_classes=num_classes)
 
-# ==========================================
-# 3. NOVA ARQUITETURA CRNN (3 CANAIS -> TIME SEQUENCE)
-# ==========================================
-# Input agora é (64, 64, 3) -> Como uma foto RGB, contendo energia, velocidade e aceleração temporal
+
 input_shape = X_train.shape[1:]
 
 model = Sequential([
-    # Camada CNN mapeia os padrões dinâmicos dos 3 canais simultaneamente
+
     Conv2D(32, (3,3), padding='same', activation='relu', input_shape=input_shape),
     BatchNormalization(),
     MaxPooling2D(2,2),
@@ -166,11 +153,10 @@ model = Sequential([
     BatchNormalization(),
     MaxPooling2D(2,2),
 
-    # O Reshape agora preserva perfeitamente os 16 passos temporais cronológicos da fala!
-    # (64 / 2 / 2) = 16 passos de tempo legítimos na horizontal
+   
     Reshape(target_shape=(16, 16 * 64)), 
 
-    # A LSTM agora recebe o tempo de forma linear pura (Passo 1 -> Passo 16)
+
     LSTM(64, return_sequences=False, dropout=0.3, recurrent_dropout=0.3),
     BatchNormalization(),
 
@@ -186,9 +172,7 @@ model.compile(
     metrics=['accuracy']
 )
 
-# ==========================================
-# 4. TREINAMENTO COLABORATIVO (FEDAVG MULTI-NÓS)
-# ==========================================
+
 print("\n[Collaborative Learning] Iniciando agregação de pesos...")
 epochs_federadas = 35
 batch_size = 32

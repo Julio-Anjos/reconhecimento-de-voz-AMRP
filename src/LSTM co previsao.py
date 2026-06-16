@@ -159,34 +159,30 @@ from tensorflow.keras.models import load_model
 from pyts.image import RecurrencePlot
 from scipy.ndimage import zoom
 
-# =====================================================
-# CONFIGURAÇÕES DE ENTRADA DO AUDIO CONTÍNUO
-# =====================================================
-SAMPLE_RATE = 16000    # Imposto pelo treino federado
-DURATION = 1.2         # Janela máxima original
-TARGET_SIZE = 64       # Dimensão espacial (64x64)
+
+SAMPLE_RATE = 16000    
+DURATION = 1.2         
+TARGET_SIZE = 64       
 
 # Modelos Federados
-MODEL_V1_PATH = "modelo_cadencia_lstm_federado.h5"          # Baseado em Recorrência (RP)
-MODEL_V2_PATH = "modelo_cadencia_lstm_federado2.h5"         # Baseado em 3 Canais de Cadência (Deltas)
+MODEL_V1_PATH = "modelo_cadencia_lstm_federado.h5"         
+MODEL_V2_PATH = "modelo_cadencia_lstm_federado2.h5"       
 LABELS_PATH = "labels_cadencia_lstm.json"
 
-# Inicializador de Recorrência para a V1
+
 rp = RecurrencePlot(threshold='point', percentage=20)
 
-# =====================================================
-# PIPELINE V1: TRATAMENTO PARA MATRIZ DE RECORRÊNCIA
-# =====================================================
+
 def pipeline_v1_recorrencia(audio_bruto):
     """Transforma o áudio em uma Matriz de Recorrência Estática (1 Canal)."""
-    # VAD Genérico (Pode conter silêncio nas bordas dependendo da gravação)
+   
     intervalos = librosa.effects.split(audio_bruto, top_db=20)
     if len(intervalos) > 0:
         audio_cortado = audio_bruto[intervalos[0][0]:intervalos[-1][1]]
     else:
         audio_cortado = audio_bruto
 
-    # Redimensionamento temporal bruto
+
     target_samples = int(SAMPLE_RATE * DURATION)
     if len(audio_cortado) < target_samples:
         audio_final = np.pad(audio_cortado, (0, target_samples - len(audio_cortado)), 'constant')
@@ -210,9 +206,6 @@ def pipeline_v1_recorrencia(audio_bruto):
     return np.expand_dims(matriz_v1, axis=-1)
 
 
-# =====================================================
-# PIPELINE V2: CENTRALIZAÇÃO DINÂMICA E DERIVADAS (DELTAS)
-# =====================================================
 def pipeline_v2_cadencia_3canais(audio_bruto):
     """Aplica VAD Suave, Centralização Estrita e extrai 3 canais de velocidade/aceleração."""
     # VAD Suave (top_db=35) para preservar consoantes de baixa energia como 'S' e 'F'
@@ -222,8 +215,8 @@ def pipeline_v2_cadencia_3canais(audio_bruto):
     else:
         audio_fala = audio_bruto
 
-    # Centralização Estrita: Preenchimento perfeitamente simétrico eliminando assimetrias de tempo
-    target_samples = int(SAMPLE_RATE * 1.0) # Focado estritamente em 1 segundo útil
+
+    target_samples = int(SAMPLE_RATE * 1.0)
     if len(audio_fala) < target_samples:
         total_pad = target_samples - len(audio_fala)
         pad_esquerdo = total_pad // 2
@@ -232,13 +225,12 @@ def pipeline_v2_cadencia_3canais(audio_bruto):
     else:
         start_crop = (len(audio_fala) - target_samples) // 2
         audio_final = audio_fala[start_crop:start_crop + target_samples]
-        
-    # Normalização por Máximo (Garante a mesma amplitude de pico independente da distância do mic)
+    
     pico = np.max(np.abs(audio_final))
     if pico > 1e-6:
         audio_final = audio_final / pico
 
-    # Extração do Espectrograma Mel Linearizado
+  
     mel_spec = librosa.feature.melspectrogram(y=audio_final, sr=SAMPLE_RATE, n_mels=64, n_fft=512, hop_length=256)
     mel_db = librosa.power_to_db(mel_spec, ref=np.max)
     
@@ -256,12 +248,10 @@ def pipeline_v2_cadencia_3canais(audio_bruto):
     return np.stack([canal_1, canal_2, canal_3], axis=-1)
 
 
-# =====================================================
-# CARREGAMENTO DOS MODELOS E EXECUÇÃO COMPARATIVA
-# =====================================================
+
 print("Carregando Modelos Federados V1 e V2...")
 if not os.path.exists(MODEL_V1_PATH) or not os.path.exists(MODEL_V2_PATH) or not os.path.exists(LABELS_PATH):
-    print("❌ ERRO: Verifique se os arquivos dos modelos e labels estão no diretório atual.")
+    print("ERRO: Verifique se os arquivos dos modelos e labels estão no diretório atual.")
     sys.exit()
 
 model_v1 = load_model(MODEL_V1_PATH)
@@ -272,12 +262,12 @@ with open(LABELS_PATH) as f:
 inv_map = {int(v): k for k, v in label_map.items()}
 
 def executar_comparativo():
-    print("\n🎤 Capturando áudio (1.2s)... Fale agora!")
+    print("\nCapturando áudio (1.2s)... Fale agora!")
     audio_bruto = sd.rec(int(DURATION * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=1, dtype='float32')
     sd.wait()
     audio_bruto = audio_bruto.flatten()
     
-    print("🧠 Processando informações em paralelo através dos dois pipelines...")
+    print("Processando informações em paralelo através dos dois pipelines...")
     
     # Execução das Transformações Específicas
     input_v1 = pipeline_v1_recorrencia(audio_bruto)

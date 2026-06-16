@@ -305,9 +305,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
-# ==========================================
-# 1. CONFIGURAÇÕES E CAMINHOS
-# ==========================================
+
 AUDIO_ORIGINAL = "dataset_final"
 AUDIO_RUIDO = "dataset_ruido"
 
@@ -319,9 +317,7 @@ labels = sorted(os.listdir(AUDIO_ORIGINAL))
 label_map = {label: i for i, label in enumerate(labels)}
 num_classes = len(labels)
 
-# ==========================================
-# METODOS MANUAIS (Exigência do Professor)
-# ==========================================
+
 
 def carregar_wav_manual(file_path):
     """Abre arquivos .wav mono de 16-bit PCM usando a biblioteca nativa wave"""
@@ -340,7 +336,7 @@ def carregar_wav_manual(file_path):
         else:
             raise ValueError("O script suporta apenas arquivos WAV de 16-bit PCM.")
             
-        # Se for estéreo, converte para mono tirando a média dos canais
+       
         if n_channels > 1:
             audio_data = audio_data.reshape(-1, n_channels).mean(axis=1)
             
@@ -353,25 +349,18 @@ def resize_matriz_manual(matriz, target_size):
     row_indices = (np.arange(target_size) * (orig_h / target_size)).astype(np.int32)
     col_indices = (np.arange(target_size) * (orig_w / target_size)).astype(np.int32)
     
-    # Aplica o fatiamento indexado por coordenadas
+
     return matriz[row_indices[:, None], col_indices]
 
 def calcular_cadencia_manual(audio, threshold_percentage=0.2):
     """Calcula a matriz de recorrência (cadência) de forma puramente matemática"""
-    # 1. Downsampling Manual de 16kHz para 2kHz (fatiando o vetor a cada 8 amostras)
-    # Fator: 16000 / 2000 = 8
+  
     audio_2k = audio[::8]
-    
-    # 2. Construção da Matriz de Distância Euclidiana por dif. de pares (Broadcasting)
-    # Calcula a distância absoluta entre cada ponto do áudio contra todos os outros pontos
     matriz_distancias = np.abs(audio_2k[:, None] - audio_2k[None, :])
     
-    # 3. Aplicação do limiar (threshold) para binarizar a recorrência
-    # Descobre o valor limite com base na porcentagem de pontos mais próximos solicitada
     limiar = np.percentile(matriz_distancias, threshold_percentage * 100)
     matriz_recorrencia = (matriz_distancias <= limiar).astype(np.float32)
     
-    # 4. Redimensionamento manual para o tamanho aceito pela CNN (TARGET_SIZE x TARGET_SIZE)
     matriz_redimensionada = resize_matriz_manual(matriz_recorrencia, TARGET_SIZE)
     
     return np.expand_dims(matriz_redimensionada, axis=-1)
@@ -393,9 +382,7 @@ def audio_to_cadence_matrix(file_path):
         
     return calcular_cadencia_manual(audio, threshold_percentage=0.2)
 
-# ==========================================
-# 2. CARREGAMENTO E PROCESSAMENTO DOS DADOS
-# ==========================================
+
 X_orig, y_orig = [], []
 
 print("Extraindo gráficos de cadência manuais do dataset original...")
@@ -461,9 +448,7 @@ y_train = y_train[idx]
 y_train = to_categorical(y_train, num_classes=num_classes)
 y_val = to_categorical(y_val, num_classes=num_classes)
 
-# ==========================================
-# 3. ARQUITETURA CRNN (CNN + LSTM)
-# ==========================================
+
 input_shape = X_train.shape[1:]
 
 model = Sequential([
@@ -492,9 +477,6 @@ model.compile(
     metrics=['accuracy']
 )
 
-# ==========================================
-# 4. SIMULAÇÃO DE TREINAMENTO COLABORATIVO
-# ==========================================
 print("\n[Collaborative Learning] Iniciando agregação de pesos...")
 epochs_federadas = 35
 batch_size = 32
@@ -524,11 +506,8 @@ for epoch in range(epochs_federadas):
     
     print(f"Época Federada Global [{epoch+1}/{epochs_federadas}] -> Loss Val: {scores[0]:.4f} | Acc Val: {scores[1]*100:.2f}%")
 
-# ==========================================
-# 5. SALVAMENTO DO MODELO E PLOTS
-# ==========================================
-model.save("modelo_cadencia_lstm_federado_manual.h5")
+
+model.save("modelo_cadencia_lstm_federado_manual_2.h5")
 with open("labels_cadencia_lstm.json", "w") as f:
     json.dump(label_map, f)
 
-# (O código de geração dos gráficos ao final permanece o mesmo do seu script original)
